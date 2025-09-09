@@ -1,0 +1,14 @@
+server:
+  port: 8890
+spring:
+  application:
+    name: ms-administration-server-configuration
+
+#Configuracion Local
+  profiles:
+    active: native
+  cloud:
+    config:
+      server: 
+        native:
+          searchLocations: file:///D:/2025/FIIS\TALLER - MICROSERVICIOS/ms-administration-data-configuration

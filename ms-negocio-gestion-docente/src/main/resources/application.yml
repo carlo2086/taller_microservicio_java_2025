@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: ms-negocio-gestion-docente
+  
+  config:
+    import: optional:configserver:http://localhost:8890
+

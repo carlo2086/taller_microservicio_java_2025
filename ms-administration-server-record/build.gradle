@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.3'
+    id 'io.spring.dependency-management' version '1.1.3'
+}
+
+group = 'com.homerios'
+version = '0.0.1-SNAPSHOT'
+java { sourceCompatibility = '17' }
+
+repositories { mavenCentral() }
+
+// BOM de Spring Cloud compatible con Boot 3.1.x
+ext { set('springCloudVersion', "2022.0.5") } // último de la rama 2022.0.x
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+
+    // (Opcional) Config Client: solo si ya tienes un Config Server
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') { useJUnitPlatform() }

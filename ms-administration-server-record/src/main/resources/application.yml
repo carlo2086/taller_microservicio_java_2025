@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: ms-administration-server-record
+  
+  config:
+    import: optional:configserver:http://localhost:8890
+
+
