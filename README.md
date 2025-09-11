@@ -3,18 +3,6 @@ Arquitectura en microservicios
 Flujo típico de arranque
 Config Server → 2) Service Discovery → 3) API Gateway → 4) Servicios de negocio (curso, docente, semestre).
 
-Arquitectura de microservicios basada en Spring Cloud, con estos patrones/blocks:
-- API Gateway como punto de entrada (carpeta ms-administration-gateway).
-- Service Discovery (tipo Eureka Server) para registro/descubrimiento (ms-administration-server-record).
-- Configuración centralizada con Spring Cloud Config Server (ms-administration-server-configuration) y su repo de configs (ms-administration-data-configuration).
-- Servicios de dominio independientes (curso, docente, semestre), cada uno con su propio esquema/datos (scripts BD_*.sql).
-
-# Arquitectura y README del proyecto
-
-Este documento resume la arquitectura del repositorio **taller\_microservicio\_java\_2025**, propone un diagrama y un README listo para usar (o adaptar) en el repositorio.
-
----
-
 ## 1) Resumen de la arquitectura
 
 Arquitectura de **microservicios** sobre **Spring (Boot/Cloud)** con tres bloques principales:
@@ -27,7 +15,12 @@ Arquitectura de **microservicios** sobre **Spring (Boot/Cloud)** con tres bloque
 **Tráfico**: *Cliente* → **Gateway** → (usa **Discovery** para resolver destinos) → **Servicios**. Todos los servicios leen su configuración desde **Config Server** al arrancar.
 
 ---
-
+Arquitectura de microservicios basada en Spring Cloud, con estos patrones/blocks:
+- API Gateway como punto de entrada (carpeta ms-administration-gateway).
+- Service Discovery (tipo Eureka Server) para registro/descubrimiento (ms-administration-server-record).
+- Configuración centralizada con Spring Cloud Config Server (ms-administration-server-configuration) y su repo de configs (ms-administration-data-configuration).
+- Servicios de dominio independientes (curso, docente, semestre), cada uno con su propio esquema/datos (scripts BD_*.sql).
+- 
 ## 2) Diagrama (Mermaid)
 
 ```mermaid
@@ -156,69 +149,8 @@ ms-negocio-gestion-curso-prod.yml
 
 ---
 
-## 7) Ejemplo de rutas en el Gateway
 
-```yaml
-spring:
-  cloud:
-    gateway:
-      routes:
-        - id: cursos
-          uri: lb://ms-negocio-gestion-curso
-          predicates:
-            - Path=/api/cursos/**
-        - id: docentes
-          uri: lb://ms-negocio-gestion-docente
-          predicates:
-            - Path=/api/docentes/**
-        - id: semestres
-          uri: lb://ms-negocio-gestion-semestre
-          predicates:
-            - Path=/api/semestres/**
-```
-
-> `lb://` usa Service Discovery para balancear/enrutar hacia las instancias registradas.
-
----
-
-## 8) Comandos de ejecución (local)
-
-> Ajusta `./mvnw`/`./gradlew` según el empaquetado real de cada módulo.
-
-### 8.1 Levantar cada módulo en terminales separadas (modo desarrollo)
-
-```bash
-# 1) Config Server
-cd ms-administration-server-configuration
-./mvnw spring-boot:run
-
-# 2) Discovery
-cd ../ms-administration-server-record
-./mvnw spring-boot:run
-
-# 3) Gateway
-cd ../ms-administration-gateway
-./mvnw spring-boot:run
-
-# 4) Servicios de dominio
-cd ../ms-negocio-gestion-curso && ./mvnw spring-boot:run
-cd ../ms-negocio-gestion-docente && ./mvnw spring-boot:run
-cd ../ms-negocio-gestion-semestre && ./mvnw spring-boot:run
-```
-
-### 8.2 Empaquetar y ejecutar JARs
-
-```bash
-# En la raíz (o por módulo)
-./mvnw -DskipTests clean package
-
-# Ejecutar (ejemplo Config Server)
-java -jar ms-administration-server-configuration/target/*.jar
-```
-
----
-
-## 9) Endpoints útiles y verificación
+## 7) Endpoints útiles y verificación
 
 * **Eureka Dashboard**: `http://localhost:8761`
 * **Gateway (health)**: `http://localhost:8080/actuator/health`
@@ -239,7 +171,7 @@ curl http://localhost:8080/api/semestres
 
 ---
 
-## 10) Notas sobre base de datos
+## 8) Notas sobre base de datos
 
 * Ejecuta los scripts SQL `BD_CURSO.sql`, `BD_DOCENTE.sql`, `BD_SEMESTRE.sql` en tu motor (p. ej., PostgreSQL).
 * Asegura variables `SPRING_DATASOURCE_*` por servicio.
@@ -247,7 +179,7 @@ curl http://localhost:8080/api/semestres
 
 ---
 
-## 11) Observabilidad (opcional recomendado)
+## 9) Observabilidad (opcional recomendado)
 
 * **Actuator** en todos los servicios (`/actuator/health`, `/actuator/info`).
 * **Tracing**: Spring Cloud Sleuth / Micrometer Tracing + OpenTelemetry Collector.
@@ -255,30 +187,9 @@ curl http://localhost:8080/api/semestres
 
 ---
 
-## 12) Seguridad (opcional recomendado)
+## 10) Seguridad (opcional recomendado)
 
 * Autenticación/autorización en el **Gateway** (Spring Security + JWT, OAuth2).
 * Policies de CORS en el Gateway.
 * *Rate limiting* y filtros de auditoría.
 
----
-
-## 13) Checklist rápido
-
-* [ ] Config Server arriba y leyendo del repo de config
-* [ ] Discovery arriba y accesible en `:8761`
-* [ ] Gateway con rutas hacia los servicios
-* [ ] Servicios con `spring.application.name` correcto y `eureka.client.serviceUrl`
-* [ ] Datasources configurados (si aplica)
-* [ ] `/actuator/health` OK en todos los módulos
-
----
-
-## 14) Próximos pasos (si quieres dejarlo en el README del repo)
-
-1. Añadir **diagrama** (este Mermaid) al README.
-2. Añadir sección **Cómo ejecutar** con el orden de arranque y los comandos.
-3. Incluir **tabla de endpoints** de cada microservicio (CRUD básicos, ejemplos `curl`).
-4. Agregar **.env** y **docker-compose** (opcional) para DB y configuración local.
-5. Integrar **Flyway** por servicio para versionar el esquema.
-6. Añadir **tests** de contrato (OpenAPI + Spring Cloud Contract) y **smoke tests**.
