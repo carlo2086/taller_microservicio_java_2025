@@ -60,7 +60,6 @@ flowchart LR
     GW -. lee .-> CFG
 ```
 
-> Si lo prefieres en PlantUML, se puede agregar una versión equivalente.
 
 ---
 
